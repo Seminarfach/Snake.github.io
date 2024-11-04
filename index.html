@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+</head>
+<body>
+    
+    <canvas id="canvas" width="480" height="480"></canvas>
+    
+    <script>
+
+        let canvas = document.getElementById('canvas');
+
+        let ctx = canvas.getContext('2d');
+
+        let rows = 20;
+
+        let cols = 20;
+
+        let snake = [
+            {x: 19, y: 3} // Jasons 
+        ]
+
+        let food;
+
+        let cellWidth = canvas.width / cols; // Teilung des Canvas in Raster 
+        
+        let cellHeight = canvas.height / rows;
+        
+        let direction = 'LEFT';
+
+        let foodCollected = false; // Speicher ob Futter eingesammelt
+
+        placeFood(); // platziert Essen 
+
+        setInterval(gameloop,200);
+
+        document.addEventListener('keydown', keyDown);
+
+        draw();
+        
+
+
+        function draw(){
+                
+                ctx.fillStyle = 'black';
+
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = 'white';
+                
+                snake.forEach(part => add(part.x, part.y));
+
+                ctx.fillStyle = 'yellow';
+
+                add(food.x, food.y); // Essen
+
+                requestAnimationFrame(draw);
+            }
+
+        function testGameOver() {
+
+                let firstPart = snake[0]; // 1. Teil der Schlange
+
+                let otherParts = snake.slice(1); // Ohne 1. Teil der Schlange
+
+                let duplicatePart = otherParts.find(part => part.x == firstPart.x && part.y == firstPart.y); // Schafft Bedingung Schlange berührt sich selber 
+
+                if (snake[0].x < 0 || // 1. Schlange läuft gegen die Wand
+                    snake[0].x > cols - 1 ||
+                    snake[0].y < 0 ||
+                    snake[0].y > rows -1 ||
+                    duplicatePart
+                ){
+                
+                        placeFood();
+                        
+                        snake = [{
+                	        x: 19,
+                            y: 3 // Jasons 
+                        }]; 
+
+                        direction = 'LEFT';
+
+                }
+            }
+        
+        function placeFood() {
+
+                let randomX = Math.floor(Math.random() * cols); // Generiert zufällige x-Koordinate zwischen 0 und 20
+
+                let randomY = Math.floor(Math.random() * rows) ; // Generiert zufällige y-Koordinate zwischen 0 und 20
+
+                food = {
+                x: randomX, // Essen wird Koordinaten zugewiesen
+                y: randomY
+                }
+            }
+
+        function add (x,y) {
+                ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth - 1, cellHeight - 1);
+            } // Anpassung des Essens auf Größe einer Zelle
+        
+        function shiftSnake(){ // Schlange wird verlängert
+                for (let i = snake.length - 1; i > 0; i--) { // For Schleife Gegensatz Python Abbruch Bedingung
+                const part = snake [i]; // Variable für den zu übertragenen Block
+                const lastPart = snake[i - 1]; // Variable für den "letzten Part"
+                part.x = lastPart.x; // Koordinate x-Achse wird übertragen
+                part.y = lastPart.y; // Koordinate y-Achse wird übertragen 
+                
+                }
+
+            }
+        function gameloop() {
+                
+                testGameOver();
+
+                if (foodCollected) {
+                    snake = [{
+                        x: snake[0].x, 
+                        y: snake[0].y
+                    }, ...snake];
+
+                    foodCollected = false;
+                }
+
+                shiftSnake(); 
+
+                if (direction == 'LEFT') {
+                    snake[0].x--;
+                }
+
+                if (direction == 'RIGHT') {
+                    snake[0].x++;
+                }
+
+                if (direction == 'UP') {
+                    snake[0].y--;
+                }
+
+                if (direction == 'DOWN') {
+                    snake[0].y++;
+                }
+                
+                if (snake[0].x == food.x && snake[0].y == food.y) {
+                    
+                    placeFood(); // Futter Berührung Schlange neu platziert
+
+                    foodCollected = true;
+                }
+            }
+
+        function keyDown(e) {
+                if (e.keyCode == 37) {
+                    direction = 'LEFT';
+                }
+                if (e.keyCode == 38){
+                    direction = 'UP';
+                }
+                if (e.keyCode == 39){
+                    direction = 'RIGHT';
+                }
+                if (e.keyCode == 40){
+                    direction = 'DOWN';
+                }
+            }
+
+        
+    </script>
+
+
+
+</body>
+</html>
